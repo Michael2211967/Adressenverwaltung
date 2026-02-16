@@ -1,4 +1,7 @@
 # 📇 Adressenverwaltung 2026
+
+![Screenshot der Adressenverwaltung](Adressenverwaltung.png)
+
 **Ein modernes Python-Tool mit Amiga-Heritage**
 
 Dieses Programm ist eine moderne Portierung einer klassischen Adressenverwaltung. Es verbindet die Effizienz von **Python 3** und **Tkinter** mit der Datenintegrität historischer `.adr`-Datenbestände.
