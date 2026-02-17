@@ -43,3 +43,6 @@ Dieses Programm ist eine moderne Portierung einer klassischen Adressenverwaltung
 1. Repository klonen oder ZIP herunterladen:
    ```bash
    git clone [https://github.com/Michael2211967/Adressenverwaltung.git](https://github.com/Michael2211967/Adressenverwaltung.git)
+
+* **Für die grafische Oberfläche (GUI):** `adressen.pyw`
+* **Für die Konsolenausgabe (CLI):** `adressen.py Datei.adr`
