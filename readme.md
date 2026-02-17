@@ -27,6 +27,7 @@ Dieses Programm ist eine moderne Portierung einer klassischen Adressenverwaltung
     * `Strg + F`: Suchen
     * `Strg + B`: Beenden
 * **🎯 Zentrierte Darstellung**: Das Hauptfenster startet immer perfekt zentriert auf dem Bildschirm.
+* **Multi-Monitor-Setup**: Die Zentrierungs-Funktion in functions/center.py nutzt jetzt screeninfo.
 
 ---
 
@@ -34,7 +35,9 @@ Dieses Programm ist eine moderne Portierung einer klassischen Adressenverwaltung
 
 ### Voraussetzungen
 * **Python 3.x**
-* **Tkinter** (Unter Linux: `sudo apt install python3-tk`)
+* **Tkinter** (Unter debian-basierten Linux-Distributionen: `sudo apt install python3-tk`)
+* **screeninfo** (Unter debian-basierten Linux-Distributionen: `sudo apt install python3-screeninfo`)
+* Windows/Universal: `pip install screeninfo`
 
 ### Start
 1. Repository klonen oder ZIP herunterladen:

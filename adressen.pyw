@@ -36,7 +36,7 @@ class AdressenGUI:
     def __addFileMenu(self):
         self.filemenu = tk.Menu(master=self.menu)
         self.menu.add_cascade(label="Datei", menu=self.filemenu)
-        self.filemenu.add_command(label="Neu", command=self.new_adresse_dialog)
+        self.filemenu.add_command(label="Neu", command=self.new_adresse_dialog, accelerator="Strg+N")
         self.filemenu.add_command(label="Datei laden", command=self.load_adresses, accelerator="Strg+L")
         self.filemenu.add_command(label="Speichern", command=self.save_adresses, accelerator="Strg+S")
         self.filemenu.add_command(label="Speichern unter...", command=self.save_as_adresses)
@@ -44,6 +44,7 @@ class AdressenGUI:
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Beenden", command=self.quit, accelerator="Strg+B")
 
+        self.root.bind("<Control-n>", lambda event: self.new_adresse_dialog())
         self.root.bind("<Control-l>", lambda event: self.load_adresses())
         self.root.bind("<Control-s>", lambda event: self.save_adresses())
         self.root.bind("<Control-b>", lambda event: self.quit())
