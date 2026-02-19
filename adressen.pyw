@@ -44,10 +44,10 @@ class AdressenGUI:
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Beenden", command=self.quit, accelerator="Strg+B")
 
-        self.root.bind("<Control-n>", lambda event: self.new_adresse_dialog())
-        self.root.bind("<Control-l>", lambda event: self.load_adresses())
-        self.root.bind("<Control-s>", lambda event: self.save_adresses())
-        self.root.bind("<Control-b>", lambda event: self.quit())
+        self.root.bind("<Control-n>", self.new_adresse_dialog)
+        self.root.bind("<Control-l>", self.load_adresses)
+        self.root.bind("<Control-s>", self.save_adresses)
+        self.root.bind("<Control-b>", self.quit)
 
     def __addEditMenu(self):
         self.editmenu = tk.Menu(master=self.menu)
@@ -56,8 +56,8 @@ class AdressenGUI:
         self.editmenu.add_command(label="Suchen", command=self.search_adresse, accelerator="Strg+F")
         self.editmenu.add_command(label="Sortieren", command=self.ask_sort_criterion)
 
-        self.root.bind("<Control-Delete>", lambda event: self.delete_adresse())
-        self.root.bind("<Control-f>", lambda event: self.search_adresse())
+        self.root.bind("<Control-Delete>", self.delete_adresse)
+        self.root.bind("<Control-f>", self.search_adresse)
 
     def __addFields(self):
         # Wir erstellen für jedes Feld ein Label und ein Entry
@@ -89,10 +89,10 @@ class AdressenGUI:
 
         # 3. Button: Vor (rechts)
         tk.Button(button_frame, text="Vor >>", command=self.next_adresse).pack(side="left", padx=5)
-        self.root.bind("<Up>", lambda event: self.next_adresse())
-        self.root.bind("<Down>", lambda event: self.prev_adresse())
+        self.root.bind("<Up>", self.next_adresse)
+        self.root.bind("<Down>", self.prev_adresse)
         
-    def load_adresses(self):
+    def load_adresses(self, event=None):
         # Dialog öffnen
         path = filedialog.askopenfilename(filetypes=[("Adressen", "*.adr")])
     
@@ -119,7 +119,7 @@ class AdressenGUI:
             self.show_adresse(0)
             messagebox.showinfo("Laden", f"{len(self.adressen)} Adressen geladen!")
 
-    def save_adresses(self):
+    def save_adresses(self, event=None):
         """Speichert die Daten im Amiga-kompatiblen Format."""
         # Sicherheits-Check: Haben wir überhaupt einen Pfad?
         if not hasattr(self, 'current_path') or not self.current_path:
@@ -166,13 +166,13 @@ class AdressenGUI:
         anzahl = len(self.adressen)
         self.lbl_status.config(text=f"{self.current_index + 1} / {anzahl}")
 
-    def next_adresse(self):
+    def next_adresse(self, event=None):
         if self.adressen and self.current_index < len(self.adressen) - 1:
             self.save_to_list() # Änderungen am aktuellen Datensatz prüfen/sichern
             self.current_index += 1
             self.show_adresse(self.current_index)
 
-    def prev_adresse(self):
+    def prev_adresse(self, event=None):
         if self.adressen and self.current_index > 0:
             self.save_to_list() # Änderungen am aktuellen Datensatz prüfen/sichern
             self.current_index -= 1
@@ -203,7 +203,7 @@ class AdressenGUI:
             
             self.data_has_changed = True
 
-    def quit(self):
+    def quit(self, event=None):
         # Wir prüfen nur, ob ungespeicherte Änderungen vorliegen
         if hasattr(self, 'data_has_changed') and self.data_has_changed:
             # Nur dann kommt die Sicherheitsabfrage
@@ -215,7 +215,7 @@ class AdressenGUI:
         self.root.quit()
         self.root.destroy()
 
-    def new_adresse_dialog(self):
+    def new_adresse_dialog(self, event=None):
         # 1. Neues Fenster erstellen
         self.new_win = tk.Toplevel(self.root)
         self.new_win.title("Neue Adresse hinzufügen")
@@ -260,7 +260,7 @@ class AdressenGUI:
         else:
             self.new_win.destroy()
 
-    def delete_adresse(self):
+    def delete_adresse(self, event=None):
         if not self.adressen:
             return
 
@@ -285,7 +285,7 @@ class AdressenGUI:
             else:
                 self.show_adresse(self.current_index)
 
-    def search_adresse(self):
+    def search_adresse(self, event=None):
         if not self.adressen:
             return
 
@@ -341,61 +341,104 @@ class AdressenGUI:
         messagebox.showinfo("Sortieren", f"Sortiert nach: {field}")
 
     def export_filtered_adresses(self):
-        if not self.adressen: return
-
-        maske = simpledialog.askstring("Ausgabe", "Anfang des Namens (Maske):")
-        if maske is None: return
-        
-        maske = maske.lower()
-        results = [a for a in self.adressen if a.get("Name", "").lower().startswith(maske)]
-
-        if not results:
-            messagebox.showinfo("Ausgabe", "Keine passenden Adressen gefunden.")
+        if not self.adressen:
+            self.no_data_available("Ausgabe (über Filter)")
             return
 
-        # 1. Spaltenbreiten dynamisch berechnen
-        col_widths = {}
-        for field in self.fields:
-            # Länge des Feldnamens als Startwert
-            max_len = len(field)
-            # Alle Treffer durchgehen und die maximale Länge im aktuellen Feld finden
-            for res in results:
-                val_len = len(str(res.get(field, "")))
-                if val_len > max_len:
-                    max_len = val_len
-            # Speichern mit 3 Leerzeichen Puffer
-            col_widths[field] = max_len + 3
-
-        # 2. Datei schreiben
-        filename = f"Liste_{maske if maske else 'alle'}.txt"
-        home = str(Path.home())
-        save_path = filedialog.asksaveasfilename(
-           initialdir=home,
-            initialfile=filename,
-            defaultextension=".txt",
-            filetypes=[("Textdateien", "*.txt"), ("Alle Dateien", "*.*")],
-            title="Export-Tabelle speichern"
-        )
-
-        if not save_path:
-            return
-        with open(save_path, "w", encoding="latin-1") as f:
-            # Kopfzeile
-            header = "".join([field.ljust(col_widths[field]) for field in self.fields])
-            f.write(header + "\n")
-            f.write("-" * len(header) + "\n")
-
-            # Datenzeilen
-            for entry in results:
-                line = "".join([str(entry.get(field, "")).ljust(col_widths[field]) for field in self.fields])
-                f.write(line + "\n")
+        # 1. Das Toplevel-Fenster erstellen
+        filter_win = tk.Toplevel(self.root)
+        filter_win.title("Export-Filter (Suchbegriffe)")
         
-        messagebox.showinfo("Erfolg", f"Dynamische Tabelle erstellt: {filename}")
+        # Geometrie setzen mit deiner Zentrierungs-Funktion
+        geo = functions.center_window(400, 450, filter_win)
+        filter_win.geometry(geo)
+        
+        filter_win.transient(self.root)
+        filter_win.grab_set()
+        filter_win.focus_set()
+
+        filter_entries = {}
+
+        # Labels und Felder für die 7 Suchbegriffe erstellen
+        for i, field in enumerate(self.fields):
+            tk.Label(filter_win, text=f"{field}:").grid(row=i, column=0, padx=10, pady=5, sticky="e")
+            entry = tk.Entry(filter_win)
+            entry.grid(row=i, column=1, padx=10, pady=5, sticky="w")
+            filter_entries[field] = entry
+
+        # 2. Die interne Logik-Funktion zum Filtern und Speichern
+        def start_export():
+            # Filterkriterien einsammeln
+            maske = {f: e.get().lower().strip() for f, e in filter_entries.items() if e.get().strip()}
+            
+            # Die Amiga "Pruef=7" Logik: Alle ausgefüllten Felder müssen matchen
+            results = []
+            for adr in self.adressen:
+                match = True
+                for field, value in maske.items():
+                    if not str(adr.get(field, "")).lower().startswith(value):
+                        match = False
+                        break
+                if match:
+                    results.append(adr)
+
+            if not results:
+                messagebox.showinfo("Suche", "Keine passenden Adressen gefunden.")
+                return
+
+            # 3. Spaltenbreiten dynamisch berechnen (dein bewährter Code)
+            col_widths = {}
+            for field in self.fields:
+                max_len = len(field)
+                for res in results:
+                    val_len = len(str(res.get(field, "")))
+                    if val_len > max_len:
+                        max_len = val_len
+                col_widths[field] = max_len + 3
+
+            # 4. Datei-Speichern Dialog
+            home = str(Path.home())
+            save_path = filedialog.asksaveasfilename(
+                initialdir=home,
+                initialfile="Gefilterte_Adressen.txt",
+                defaultextension=".txt",
+                filetypes=[("Textdateien", "*.txt"), ("Alle Dateien", "*.*")],
+                title="Export-Tabelle speichern"
+            )
+
+            if not save_path:
+                return
+
+            # Datei schreiben (im Amiga-freundlichen latin-1)
+            try:
+                with open(save_path, "w", encoding="utf8") as f:
+                    # Kopfzeile
+                    header = "".join([field.ljust(col_widths[field]) for field in self.fields])
+                    f.write(header + "\n")
+                    f.write("-" * len(header) + "\n")
+
+                    # Datenzeilen
+                    for entry in results:
+                        line = "".join([str(entry.get(field, "")).ljust(col_widths[field]) for field in self.fields])
+                        f.write(line + "\n")
+                
+                messagebox.showinfo("Erfolg", f"Export mit {len(results)} Treffern erstellt.")
+                filter_win.destroy() # Fenster erst bei Erfolg schließen
+            except Exception as e:
+                messagebox.showerror("Fehler", f"Datei konnte nicht gespeichert werden: {e}")
+        # 3. DER BUTTON (muss hier stehen, eingerückt unter filter_entries!)
+        # Jetzt kennt er filter_win, da wir uns noch in der Methode befinden.
+        tk.Button(filter_win, text="Export-Datei erstellen", command=start_export, 
+                  bg="#e0e0e0").grid(row=len(self.fields), columnspan=2, pady=20)
 
     def update_title(self):
         if hasattr(self, 'current_path') and self.current_path:
             self.root.title("Adressenverwaltung: " + self.current_path)
         else:
             self.root.title("Adressenverwaltung")
-        
+
+    def no_data_available(self, reason):
+        messagebox.showwarning("Warnung", f"Für {reason} bitte erst Daten Laden!")
+        return
+
 adressen = AdressenGUI()

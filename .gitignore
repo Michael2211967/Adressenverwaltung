@@ -1,0 +1,5 @@
+*.adr
+__pycache__/       # Automatisch generierter Python-Bytecode
+*.pyc              # Einzelne kompilierte Python-Dateien
+.DS_Store          # Falls mal ein Mac-Nutzer reinschaut
+deb/*.deb          # Damit die fertigen Pakete nicht das Repo aufblähen
