@@ -10,7 +10,7 @@ class AdressenGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Adressenverwaltung")
-        self.geometry = functions.center_window(1024, 500, self.root)
+        self.geometry = functions.center_window(1100, 500, self.root)
         self.root.geometry(self.geometry)
         self.icon_path = os.path.join(script_dir, 'adressen.png')
         self.img = tk.PhotoImage(file=self.icon_path)
@@ -35,14 +35,14 @@ class AdressenGUI:
 
     def __addFileMenu(self):
         self.filemenu = tk.Menu(master=self.menu)
-        self.menu.add_cascade(label="Datei", menu=self.filemenu)
-        self.filemenu.add_command(label="Neu", command=self.new_adresse_dialog, accelerator="Strg+N")
-        self.filemenu.add_command(label="Datei laden", command=self.load_adresses, accelerator="Strg+L")
-        self.filemenu.add_command(label="Speichern", command=self.save_adresses, accelerator="Strg+S")
-        self.filemenu.add_command(label="Speichern unter...", command=self.save_as_adresses)
-        self.filemenu.add_command(label="Ausgabe (über Filter)", command=self.export_filtered_adresses)
+        self.menu.add_cascade(label="Datei", font=("Arial",15), menu=self.filemenu)
+        self.filemenu.add_command(label="Neu", font=("Arial", 15), command=self.new_adresse_dialog, accelerator="Strg+N")
+        self.filemenu.add_command(label="Datei laden", font=("Arial", 15), command=self.load_adresses, accelerator="Strg+L")
+        self.filemenu.add_command(label="Speichern", font=("Arial", 15),command=self.save_adresses, accelerator="Strg+S")
+        self.filemenu.add_command(label="Speichern unter...", font=("Arial", 15), command=self.save_as_adresses)
+        self.filemenu.add_command(label="Ausgabe (über Filter)", font=("Arial", 15), command=self.export_filtered_adresses)
         self.filemenu.add_separator()
-        self.filemenu.add_command(label="Beenden", command=self.quit, accelerator="Strg+B")
+        self.filemenu.add_command(label="Beenden", font=("Arial", 15), command=self.quit, accelerator="Strg+B")
 
         self.root.bind("<Control-n>", self.new_adresse_dialog)
         self.root.bind("<Control-l>", self.load_adresses)
@@ -51,10 +51,10 @@ class AdressenGUI:
 
     def __addEditMenu(self):
         self.editmenu = tk.Menu(master=self.menu)
-        self.menu.add_cascade(label="Bearbeiten", menu=self.editmenu)
-        self.editmenu.add_command(label="Löschen", command=self.delete_adresse, accelerator="Strg+Entf")
-        self.editmenu.add_command(label="Suchen", command=self.search_adresse, accelerator="Strg+F")
-        self.editmenu.add_command(label="Sortieren", command=self.ask_sort_criterion)
+        self.menu.add_cascade(label="Bearbeiten", font=("Arial",15), menu=self.editmenu)
+        self.editmenu.add_command(label="Löschen", font=("Arial",15), command=self.delete_adresse, accelerator="Strg+Entf")
+        self.editmenu.add_command(label="Suchen", font=("Arial",15), command=self.search_adresse, accelerator="Strg+F")
+        self.editmenu.add_command(label="Sortieren", font=("Arial",15), command=self.ask_sort_criterion)
 
         self.root.bind("<Control-Delete>", self.delete_adresse)
         self.root.bind("<Control-f>", self.search_adresse)
@@ -63,11 +63,11 @@ class AdressenGUI:
         # Wir erstellen für jedes Feld ein Label und ein Entry
         for i, field in enumerate(self.fields):
             # Label (links)
-            lbl = tk.Label(self.root, text=f"{field}:", width=12, anchor="w")
+            lbl = tk.Label(self.root, text=f"{field}:", font=("Arial",15), width=12, anchor="w")
             lbl.grid(row=i, column=0, padx=10, pady=2)
             
             # Entry (rechts)
-            ent = tk.Entry(self.root, width=40)
+            ent = tk.Entry(self.root, font=("Arial", 15), width=80)
             ent.grid(row=i, column=1, padx=10, pady=2)
             
             # Wir speichern das Entry-Widget im Dictionary 'widgets', 
@@ -79,16 +79,16 @@ class AdressenGUI:
         # Wir platzieren den Frame in der Zeile nach dem letzten Feld (Index 7)
         button_frame.grid(row=len(self.fields), column=0, columnspan=2, pady=15)
         # 1. Button: Zurück (links)
-        tk.Button(button_frame, text="<< Zurück", command=self.prev_adresse).pack(side="left", padx=5)
+        tk.Button(button_frame, text="<< Zurück", font=("Arial", 15), command=self.prev_adresse).pack(side="left", padx=5)
         # 2. ÜBERNEHMEN (Neu hinzugefügt)
         # Er ruft save_to_list auf und könnte optional eine Info ausgeben
-        tk.Button(button_frame, text="Übernehmen", command=self.save_to_list, bg="#e1e1e1").pack(side="left", padx=5)
+        tk.Button(button_frame, text="Übernehmen", font=("Arial", 15), command=self.save_to_list, bg="#e1e1e1").pack(side="left", padx=5)
         # 2. Label: Status (Mitte) - Jetzt zwischen den Buttons
-        self.lbl_status = tk.Label(button_frame, text="0 / 0", width=10)
+        self.lbl_status = tk.Label(button_frame, text="", font=("Arial", 15), width=10)
         self.lbl_status.pack(side="left", padx=10)
 
         # 3. Button: Vor (rechts)
-        tk.Button(button_frame, text="Vor >>", command=self.next_adresse).pack(side="left", padx=5)
+        tk.Button(button_frame, text="Vor >>", font=("Arial", 15), command=self.next_adresse).pack(side="left", padx=5)
         self.root.bind("<Up>", self.next_adresse)
         self.root.bind("<Down>", self.prev_adresse)
         
@@ -154,7 +154,7 @@ class AdressenGUI:
 
     def show_adresse(self, index):
         if not self.adressen:
-            self.lbl_status.config(text="0 / 0")
+            self.lbl_status.config(text="")
             return
         # Diese Methode füllt die Maske mit den Daten eines Datensatzes
         daten = self.adressen[index]
@@ -219,7 +219,7 @@ class AdressenGUI:
         # 1. Neues Fenster erstellen
         self.new_win = tk.Toplevel(self.root)
         self.new_win.title("Neue Adresse hinzufügen")
-        geometry = functions.center_window(500, 350, self.new_win)
+        geometry = functions.center_window(1075, 350, self.new_win)
         self.new_win.geometry(geometry)
         
         # Dictionary für die neuen Widgets in DIESEM Fenster
@@ -227,8 +227,8 @@ class AdressenGUI:
 
         # 2. Felder aufbauen (wie im Hauptfenster)
         for i, field in enumerate(self.fields):
-            tk.Label(self.new_win, text=f"{field}:", width=12, anchor="w").grid(row=i, column=0, padx=10, pady=5)
-            ent = tk.Entry(self.new_win, width=40)
+            tk.Label(self.new_win, text=f"{field}:", width=12, font=("Arial",15), anchor="w").grid(row=i, column=0, padx=10, pady=5)
+            ent = tk.Entry(self.new_win, font=("Arial", 15), width=80)
             ent.grid(row=i, column=1, padx=10, pady=5)
             new_widgets[field] = ent
 
@@ -237,11 +237,11 @@ class AdressenGUI:
         btn_frame.grid(row=len(self.fields), column=0, columnspan=2, pady=20)
 
         # OK-Button: Daten übernehmen
-        tk.Button(btn_frame, text="OK", width=10, 
+        tk.Button(btn_frame, text="OK", width=10, font=("Arial",15),
                   command=lambda: self.add_new_entry(new_widgets)).pack(side="left", padx=10)
         
         # Abbrechen-Button: Fenster schließen
-        tk.Button(btn_frame, text="Abbrechen", width=10, 
+        tk.Button(btn_frame, text="Abbrechen", width=10, font=("Arial", 15), 
                   command=self.new_win.destroy).pack(side="left", padx=10)
 
     def add_new_entry(self, widgets):
@@ -311,19 +311,20 @@ class AdressenGUI:
 
     def ask_sort_criterion(self):
         if not self.adressen:
+            self.no_data_available("Sortieren")
             return
 
         # 1. Ein kleines modales Fenster erstellen
         sort_win = tk.Toplevel(self.root)
         sort_win.title("Sortieren nach...")
-        sort_win.geometry(functions.center_window(250, 300, sort_win))
+        sort_win.geometry(functions.center_window(300, 380, sort_win))
         sort_win.grab_set() # Fokus erzwingen
 
-        tk.Label(sort_win, text="Feld auswählen:", pady=10).pack()
+        tk.Label(sort_win, text="Feld auswählen:", font=("Arial", 15), pady=10).pack()
 
         # 2. Für jedes Feld einen Button erstellen
         for field in self.fields:
-            tk.Button(sort_win, text=field, width=20,
+            tk.Button(sort_win, text=field, width=20, font=("Arial", 15),
                       command=lambda f=field: self.execute_sort(f, sort_win)).pack(pady=2)
 
     def execute_sort(self, field, window):
@@ -361,8 +362,8 @@ class AdressenGUI:
 
         # Labels und Felder für die 7 Suchbegriffe erstellen
         for i, field in enumerate(self.fields):
-            tk.Label(filter_win, text=f"{field}:").grid(row=i, column=0, padx=10, pady=5, sticky="e")
-            entry = tk.Entry(filter_win)
+            tk.Label(filter_win, text=f"{field}:", font=("Arial", 15)).grid(row=i, column=0, padx=10, pady=5, sticky="e")
+            entry = tk.Entry(filter_win, font=("Arial", 15))
             entry.grid(row=i, column=1, padx=10, pady=5, sticky="w")
             filter_entries[field] = entry
 
@@ -428,7 +429,7 @@ class AdressenGUI:
                 messagebox.showerror("Fehler", f"Datei konnte nicht gespeichert werden: {e}")
         # 3. DER BUTTON (muss hier stehen, eingerückt unter filter_entries!)
         # Jetzt kennt er filter_win, da wir uns noch in der Methode befinden.
-        tk.Button(filter_win, text="Export-Datei erstellen", command=start_export, 
+        tk.Button(filter_win, text="Export-Datei erstellen", font=("Arial", 15), command=start_export, 
                   bg="#e0e0e0").grid(row=len(self.fields), columnspan=2, pady=20)
 
     def update_title(self):
