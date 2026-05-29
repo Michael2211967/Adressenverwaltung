@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 import os
 from pathlib import Path
+import shutil
 import functions
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -15,12 +16,18 @@ class AdressenGUI:
         self.icon_path = os.path.join(script_dir, 'adressen.png')
         self.img = tk.PhotoImage(file=self.icon_path)
         self.root.iconphoto(False, self.img)
-        self.fields = ["Anrede", "Vorname", "Name", "Straße", "PLZ_Ort", "Telefon", "Bemerkung"]
+        self.fields = ["Anrede", "Vorname", "Name", "Straße", "PLZ/Ort", "Telefon", "Bemerkung"]
         self.adressen = []
         self.widgets = {}
         self.current_index = 0
+        self.home_path = str(Path.home())
+        # History-Datei im Home-Verzeichnis festlegen
+        self.history_file = os.path.join(Path.home(), '.adressenpy')
+        self.recent_files = self._load_history()
         self.__addMenu()
         self.__addFileMenu()
+        self.update_recent_menu() # Menü nach dem Erstellen initialisieren
+        self._ensure_default_file()
         self.__addEditMenu()
         self.__addFields()
         self.__addButtons()
@@ -92,9 +99,10 @@ class AdressenGUI:
         self.root.bind("<Up>", self.next_adresse)
         self.root.bind("<Down>", self.prev_adresse)
         
-    def load_adresses(self, event=None):
+    def load_adresses(self, event=None, path=None):
         # Dialog öffnen
-        path = filedialog.askopenfilename(filetypes=[("Adressen", "*.adr")])
+        if not path:
+            path = filedialog.askopenfilename(filetypes=[("Adressen", "*.adr")])
     
         if not path: 
             return
@@ -118,6 +126,7 @@ class AdressenGUI:
         if self.adressen:
             self.show_adresse(0)
             messagebox.showinfo("Laden", f"{len(self.adressen)} Adressen geladen!")
+        self.add_to_history(path) # Pfad zur History hinzufügen
 
     def save_adresses(self, event=None):
         """Speichert die Daten im Amiga-kompatiblen Format."""
@@ -151,6 +160,7 @@ class AdressenGUI:
             self.current_path = path
             self.update_title()
             self.save_adresses()
+            self.add_to_history(path) # Hier ebenfalls hinzufügen
 
     def show_adresse(self, index):
         if not self.adressen:
@@ -181,7 +191,6 @@ class AdressenGUI:
     def save_to_list(self):
         if not self.adressen:
             return
-
         # Wir greifen uns den Datensatz
         record = self.adressen[self.current_index]
         
@@ -202,6 +211,73 @@ class AdressenGUI:
                 record[field] = gui_values[field]
             
             self.data_has_changed = True
+
+    def _load_history(self):
+        """Lädt die letzten 5 Pfade aus dem Home-Verzeichnis."""
+        if os.path.exists(self.history_file):
+            try:
+                with open(self.history_file, 'r', encoding='utf-8') as f:
+                    # Nur Pfade übernehmen, die tatsächlich noch existieren
+                    return [line.strip() for line in f.readlines() if os.path.exists(line.strip())][:5]
+            except Exception:
+                return []
+        return []
+
+    def _save_history(self):
+        """Speichert die aktuelle Liste im Home-Verzeichnis."""
+        try:
+            with open(self.history_file, 'w', encoding='utf-8') as f:
+                for path in self.recent_files:
+                    f.write(f"{path}\n")
+        except Exception as e:
+            print(f"History konnte nicht gespeichert werden: {e}")
+
+    def update_recent_menu(self):
+        """Aktualisiert das Untermenü 'Zuletzt geöffnet'."""
+        if hasattr(self, 'recent_menu'):
+            self.recent_menu.delete(0, tk.END)
+        else:
+            # Erstellt das Untermenü im 'Datei'-Menü
+            self.recent_menu = tk.Menu(self.filemenu, tearoff=0)
+            # Einfügen an Position 2 (nach "Datei laden")
+            self.filemenu.insert_cascade(2, label="Zuletzt geöffnet", menu=self.recent_menu, font=("Arial", 15))
+
+        if not self.recent_files:
+            self.recent_menu.add_command(label="(Leer)", state="disabled", font=("Arial", 15))
+        else:
+            for path in self.recent_files:
+                label = path
+                # Lambda mit Standardwert p=path fixiert den aktuellen Pfad für den Button
+                self.recent_menu.add_command(
+                    label=label, 
+                    font=("Arial", 15),
+                    command=lambda p=path: self.load_adresses(path=p)
+                )
+
+    def add_to_history(self, path):
+        """Fügt einen Pfad hinzu und rotiert die Liste."""
+        if path in self.recent_files:
+            self.recent_files.remove(path)
+        self.recent_files.insert(0, path)
+        self.recent_files = self.recent_files[:5]
+        self._save_history()
+        self.update_recent_menu()
+
+    def _ensure_default_file(self):
+        target_adr = os.path.join(self.home_path, "Beispiel_Adressen.adr")
+        source_adr = os.path.join(script_dir, "Beispiel_Adressen.adr")
+        
+        # 1. Prüfen, ob die Zieldatei im Home-Verzeichnis bereits existiert 
+        if not os.path.exists(target_adr):
+            # 2. Wenn nicht, prüfen, ob die Quelle existiert 
+            if os.path.exists(source_adr):
+                try:
+                    shutil.copy2(source_adr, target_adr)
+                except Exception as e:
+                    print(f"Fehler beim Kopieren: {e}")
+            else:
+                print("Beispieldatei nicht gefunden zum Kopieren.")
+            
 
     def quit(self, event=None):
         # Wir prüfen nur, ob ungespeicherte Änderungen vorliegen
