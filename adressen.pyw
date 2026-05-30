@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import functions
 script_dir = os.path.dirname(os.path.abspath(__file__))
+from aboutTK import About
 
 class AdressenGUI:
     def __init__(self):
@@ -29,6 +30,7 @@ class AdressenGUI:
         self.update_recent_menu() # Menü nach dem Erstellen initialisieren
         self._ensure_default_file()
         self.__addEditMenu()
+        self.__addAboutMenue()
         self.__addFields()
         self.__addButtons()
         self.root.wm_protocol("WM_DELETE_WINDOW", self.quit)
@@ -65,6 +67,11 @@ class AdressenGUI:
 
         self.root.bind("<Control-Delete>", self.delete_adresse)
         self.root.bind("<Control-f>", self.search_adresse)
+
+    def __addAboutMenue(self):
+        self.aboutmenu = tk.Menu(master=self.menu)
+        self.menu.add_cascade(label="Über", font=("Arial", 15), menu=self.aboutmenu)
+        self.aboutmenu.add_command(label="Version", font=("Arial", 15), command=self.about)
 
     def __addFields(self):
         # Wir erstellen für jedes Feld ein Label und ein Entry
@@ -290,6 +297,9 @@ class AdressenGUI:
         # Wenn keine Änderungen da sind ODER der User "Ja" geklickt hat:
         self.root.quit()
         self.root.destroy()
+
+    def about(self):
+        About(self.root, title="Adressenverwaltung-GUI", program="Adressenverwaltung", version=1.45)
 
     def new_adresse_dialog(self, event=None):
         # 1. Neues Fenster erstellen
