@@ -1,8 +1,8 @@
 .antigravitycli/
 *.adr
-__pycache__/       # Automatisch generierter Python-Bytecode
-*.pyc              # Einzelne kompilierte Python-Dateien
-.DS_Store          # Falls mal ein Mac-Nutzer reinschaut
+__pycache__/       
+*.pyc
+.DS_Store
 deb/
 *.deb
 *.rpm
