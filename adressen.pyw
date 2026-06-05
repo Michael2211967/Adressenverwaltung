@@ -299,7 +299,7 @@ class AdressenGUI:
         self.root.destroy()
 
     def about(self):
-        About(self.root, title="Adressenverwaltung-GUI", program="Adressenverwaltung", version=1.45)
+        About(self.root, title="Adressenverwaltung-GUI", program="Adressenverwaltung", version=1.46)
 
     def new_adresse_dialog(self, event=None):
         # 1. Neues Fenster erstellen
