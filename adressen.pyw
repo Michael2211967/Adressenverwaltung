@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
+import sys
 import os
 from pathlib import Path
 import shutil
@@ -36,6 +37,8 @@ class AdressenGUI:
         self.root.wm_protocol("WM_DELETE_WINDOW", self.quit)
         self.current_path = ""
         self.update_title()
+        if len(sys.argv) > 1:
+            self.load_adresses(path=sys.argv[1])
         self.root.mainloop()
 
     def __addMenu(self):
@@ -299,7 +302,7 @@ class AdressenGUI:
         self.root.destroy()
 
     def about(self):
-        About(self.root, title="Adressenverwaltung-GUI", program="Adressenverwaltung", version=1.46)
+        About(self.root, title="Adressenverwaltung-GUI", program="Adressenverwaltung", version=1.48)
 
     def new_adresse_dialog(self, event=None):
         # 1. Neues Fenster erstellen
